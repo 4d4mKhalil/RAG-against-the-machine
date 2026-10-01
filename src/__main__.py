@@ -1,7 +1,8 @@
-from fire import Fire
+import fire
+from .pipeline import Pipeline
 
-def greeting(name):
-    print(f'hello {name}')
+def main() -> None:
+    fire.Fire(Pipeline)
 
 if __name__ == "__main__":
-    Fire(greeting)
+    main()
