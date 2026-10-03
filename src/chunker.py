@@ -1,16 +1,9 @@
 import pathlib
-from dataclasses import dataclass
+from models import Chunk
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 
 VALID_FILES = {".py", ".md", ".rst", ".txt", ".json", ".yaml", ".yml"}
 IGNORED = {".git", "__pycache__", ".mypy_cache", ".venv"}
-
-@dataclass
-class Chunk:
-    file_path: str
-    text: str
-    start_char: int
-    end_char: int
 
 
 def _chunker(file_path:str, max_chunk_size: int) -> list[Chunk]:
@@ -42,10 +35,10 @@ def _chunker(file_path:str, max_chunk_size: int) -> list[Chunk]:
         start_char = chunk.metadata['start_index']
         end_char = start_char + len(chunk.page_content)
         res.append(Chunk(
-            file_path,
-            chunk.page_content,
-            start_char,
-            end_char
+            file_path=file_path,
+            first_character_index=start_char,
+            last_character_index=end_char,
+            text=chunk.page_content
             ))
     return res
 
