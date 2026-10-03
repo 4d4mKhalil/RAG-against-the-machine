@@ -1,6 +1,9 @@
+import pathlib
 from dataclasses import dataclass
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 
+VALID_FILES = {".py", ".md", ".rst", ".txt", ".json", ".yaml", ".yml"}
+IGNORED = {".git", "__pycache__", ".mypy_cache", ".venv"}
 
 @dataclass
 class Chunk:
@@ -10,12 +13,50 @@ class Chunk:
     end_char: int
 
 
-def chunker(file_path:str, max_chunk_size: int, source: str) -> list[Chunk]:
-    splitter = RecursiveCharacterTextSplitter(chunk_size=max_chunk_size, chunk_overlap=0, add_start_index = True)
+def _chunker(file_path:str, max_chunk_size: int) -> list[Chunk]:
+    extension = pathlib.Path(file_path).suffix
+    language_map = {
+        ".py": Language.PYTHON,
+        ".md": Language.MARKDOWN,
+        ".rst": Language.RST
+    }
+    if extension in language_map:
+        splitter = RecursiveCharacterTextSplitter.from_language(
+            language=language_map[extension],
+            chunk_size=max_chunk_size,
+            chunk_overlap=0,
+            add_start_index = True
+            )
+    else:
+        splitter = RecursiveCharacterTextSplitter(chunk_size=max_chunk_size, chunk_overlap=0, add_start_index = True)
+
+    try:
+        with open(file_path) as file:
+            source = file.read()
+    except IOError:
+        return []
+    
     chunks = splitter.create_documents([source])
     res: list[Chunk] = []
     for chunk in chunks:
         start_char = chunk.metadata['start_index']
         end_char = start_char + len(chunk.page_content)
-        res.append(Chunk(file_path, chunk.page_content, start_char, end_char))
+        res.append(Chunk(
+            file_path,
+            chunk.page_content,
+            start_char,
+            end_char
+            ))
     return res
+
+def loader(repo: str, max_chunk_size: int) -> list[Chunk]:
+    chunks: list[Chunk] = []
+    files = list(pathlib.Path(repo).rglob('*'))
+
+    for file in files:
+        if not file.is_file() or any(part in IGNORED for part in file.parts):
+            continue
+        if file.suffix.lower() not in VALID_FILES:
+            continue
+        chunks.extend(_chunker(str(file), max_chunk_size))
+    return chunks
