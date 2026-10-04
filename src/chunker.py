@@ -1,5 +1,5 @@
 import pathlib
-from models import Chunk
+from .models import Chunk
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 
 VALID_FILES = {".py", ".md", ".rst", ".txt", ".json", ".yaml", ".yml"}

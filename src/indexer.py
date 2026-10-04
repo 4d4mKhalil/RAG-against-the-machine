@@ -1,6 +1,8 @@
+from functools import lru_cache
+
 import bm25s, pathlib, re, faiss, json
-from chunker import loader
-from models import Chunk
+from .chunker import loader
+from .models import Chunk
 from sentence_transformers import SentenceTransformer
 
 def _txt_processor(text):
@@ -13,6 +15,7 @@ def _embedder(corpus: list[str]):
     embeddings = embedder.encode(corpus, show_progress_bar=True, batch_size=600)
     return embeddings
 
+@lru_cache
 def indexer(repo: str, save_path: str, max_chunk_size: int):
     chunks: list[Chunk] = loader(repo, max_chunk_size)
     faiss_corpus = [chunk.text for chunk in chunks]
