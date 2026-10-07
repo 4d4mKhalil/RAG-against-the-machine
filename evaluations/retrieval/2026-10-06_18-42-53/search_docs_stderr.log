@@ -1,0 +1,96 @@
+Split strings:   0%|          | 0/1 [00:00<?, ?it/s]                                                    BM25S Retrieve:   0%|          | 0/1 [00:00<?, ?it/s]                                                     Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 16428.24it/s]
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/goinfre/adkhalil/RAG/src/__main__.py", line 8, in <module>
+    main()
+  File "/goinfre/adkhalil/RAG/src/__main__.py", line 5, in main
+    fire.Fire(Pipeline)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/fire/core.py", line 135, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/fire/core.py", line 468, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/fire/core.py", line 684, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "/goinfre/adkhalil/RAG/src/pipeline.py", line 49, in search_dataset
+    retrieved_sources=searcher(q.question, k, './data/processed')
+  File "/goinfre/adkhalil/RAG/src/retriever.py", line 74, in searcher
+    indexes = hybrid_search_retriever(query, k, path)
+  File "/goinfre/adkhalil/RAG/src/retriever.py", line 55, in hybrid_search_retriever
+    top_k_faiss = faiss_retriever(query, k, path)
+  File "/goinfre/adkhalil/RAG/src/retriever.py", line 39, in faiss_retriever
+    embedder= get_embedder()
+  File "/goinfre/adkhalil/RAG/src/retriever.py", line 22, in get_embedder
+    return SentenceTransformer('all-MiniLM-L6-v2')
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/util/decorators.py", line 46, in wrapper
+    return func(*args, **kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/sentence_transformer/model.py", line 194, in __init__
+    super().__init__(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/base/model.py", line 236, in __init__
+    modules, self.module_kwargs = self._load_modules(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/base/model.py", line 1081, in _load_modules
+    return self._load_config_modules(model_name_or_path, **load_kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/base/model.py", line 1298, in _load_config_modules
+    module = module_class.load(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/base/modules/transformer.py", line 2635, in load
+    return cls(model_name_or_path=model_name_or_path, **init_kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/util/decorators.py", line 92, in wrapper
+    return func(*args, **kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/base/modules/transformer.py", line 869, in __init__
+    self.processor = AutoProcessor.from_pretrained(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/models/auto/processing_auto.py", line 208, in from_pretrained
+    kwargs["revision"] = resolve_revision(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/utils/hub.py", line 287, in resolve_revision
+    return hf_api().resolve_revision(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 266, in _inner
+    return fn(*args, **kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/huggingface_hub/hf_api.py", line 3747, in resolve_revision
+    sha = self.repo_info(repo_id=repo_id, repo_type=repo_type, revision=revision, token=token).sha
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/huggingface_hub/hf_api.py", line 3643, in repo_info
+    return method(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/huggingface_hub/hf_api.py", line 3322, in model_info
+    r = get_session().get(path, headers=headers, timeout=timeout, params=params)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpx/_client.py", line 1053, in get
+    return self.request(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/httpcore/_backends/sync.py", line 128, in read
+    return self._sock.recv(max_bytes)
+  File "/usr/lib/python3.10/ssl.py", line 1288, in recv
+    return self.read(buflen)
+  File "/usr/lib/python3.10/ssl.py", line 1161, in read
+    return self._sslobj.read(len)
+KeyboardInterrupt

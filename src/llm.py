@@ -1,3 +1,4 @@
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
@@ -7,7 +8,7 @@ class Small_LLM:
 
         self.model = AutoModelForCausalLM.from_pretrained(
             model,
-            torch_dtype="auto",
+            dtype=torch.float32 if not torch.cuda.is_available() else "auto",
             device_map="auto"
         )
 
