@@ -1,81 +1,0 @@
-Split strings:   0%|          | 0/15507 [00:00<?, ?it/s]Split strings:  19%|█▊        | 2871/15507 [00:00<00:00, 28706.13it/s]Split strings:  37%|███▋      | 5742/15507 [00:00<00:00, 28530.41it/s]Split strings:  55%|█████▌    | 8596/15507 [00:00<00:00, 28255.30it/s]Split strings:  74%|███████▍  | 11441/15507 [00:00<00:00, 28328.73it/s]Split strings:  92%|█████████▏| 14275/15507 [00:00<00:00, 27804.91it/s]                                                                       BM25S Count Tokens:   0%|          | 0/15507 [00:00<?, ?it/s]                                                             BM25S Compute Scores:   0%|          | 0/15507 [00:00<?, ?it/s]BM25S Compute Scores:  63%|██████▎   | 9716/15507 [00:00<00:00, 97158.01it/s]                                                                             Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 16705.21it/s]
-Batches:   0%|          | 0/26 [00:00<?, ?it/s]Batches:   4%|▍         | 1/26 [00:06<02:41,  6.46s/it]Batches:   8%|▊         | 2/26 [00:13<02:38,  6.60s/it]Batches:   8%|▊         | 2/26 [00:18<03:36,  9.03s/it]
-Traceback (most recent call last):
-  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
-    exec(code, run_globals)
-  File "/goinfre/adkhalil/RAG/src/__main__.py", line 8, in <module>
-    main()
-  File "/goinfre/adkhalil/RAG/src/__main__.py", line 5, in main
-    fire.Fire(Pipeline)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/fire/core.py", line 135, in Fire
-    component_trace = _Fire(component, args, parsed_flag_args, context, name)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/fire/core.py", line 468, in _Fire
-    component, remaining_args = _CallAndUpdateTrace(
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/fire/core.py", line 684, in _CallAndUpdateTrace
-    component = fn(*varargs, **kwargs)
-  File "/goinfre/adkhalil/RAG/src/pipeline.py", line 13, in index
-    indexer('./data/raw', './data/processed', max_chunk_size)
-  File "/goinfre/adkhalil/RAG/src/indexer.py", line 30, in indexer
-    embeddings = _embedder(faiss_corpus)
-  File "/goinfre/adkhalil/RAG/src/indexer.py", line 15, in _embedder
-    embeddings = embedder.encode(corpus, show_progress_bar=True, batch_size=600)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
-    return func(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/util/decorators.py", line 46, in wrapper
-    return func(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/sentence_transformer/model.py", line 941, in encode
-    out_features = self(features, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/base/model.py", line 569, in forward
-    input = module(input, **module_kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/sentence_transformers/base/modules/transformer.py", line 1650, in forward
-    model_output = model_method(**filtered_kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/utils/generic.py", line 1068, in wrapper
-    output = func(self, *args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/utils/output_capturing.py", line 287, in wrapper
-    outputs = func(self, *args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/models/bert/modeling_bert.py", line 669, in forward
-    encoder_outputs = self.encoder(
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/models/bert/modeling_bert.py", line 436, in forward
-    hidden_states = layer_module(
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/modeling_layers.py", line 110, in __call__
-    return super().__call__(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/models/bert/modeling_bert.py", line 383, in forward
-    self_attention_output, _ = self.attention(
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/models/bert/modeling_bert.py", line 321, in forward
-    attention_output = self.output(attention_output, hidden_states)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/transformers/models/bert/modeling_bert.py", line 290, in forward
-    hidden_states = self.dense(hidden_states)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/goinfre/adkhalil/RAG/.venv/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 134, in forward
-    return F.linear(input, self.weight, self.bias)
-KeyboardInterrupt
