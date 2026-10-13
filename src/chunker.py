@@ -1,10 +1,8 @@
 import pathlib
+
+from .settings import Settings
 from .models import Chunk
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
-
-VALID_FILES = {".py", ".md", ".rst", ".txt", ".json", ".yaml", ".yml"}
-IGNORED = {".git", "__pycache__", ".mypy_cache", ".venv"}
-
 
 def _chunker(file_path:str, max_chunk_size: int) -> list[Chunk]:
     extension = pathlib.Path(file_path).suffix
@@ -47,9 +45,9 @@ def loader(repo: str, max_chunk_size: int) -> list[Chunk]:
     files = list(pathlib.Path(repo).rglob('*'))
 
     for file in files:
-        if not file.is_file() or any(part in IGNORED for part in file.parts):
+        if not file.is_file() or Settings.is_ignored(file):
             continue
-        if file.suffix.lower() not in VALID_FILES:
+        if not Settings.is_indexable(file):
             continue
         chunks.extend(_chunker(str(file), max_chunk_size))
     return chunks

@@ -1,4 +1,6 @@
 import bm25s, faiss, json, re
+
+from .settings import Settings
 from .models import Chunk, MinimalSource
 from rich import print
 from functools import lru_cache
@@ -14,12 +16,12 @@ def faiss_index_loader(index_path: str):
 
 @lru_cache
 def chunks_loader(chunks_dir: str):
-    with open(f'{chunks_dir}/chunks.json') as file:
+    with open(f'{chunks_dir}/{Settings.CHUNKS_NAME}') as file:
         return json.load(file)
 
 @lru_cache
 def get_embedder():
-    return SentenceTransformer('all-MiniLM-L6-v2')
+    return SentenceTransformer(Settings.EMBEDDING_MODEL)
 
 def _txt_processor(text):
     text = text.replace('_', ' ')
@@ -27,7 +29,7 @@ def _txt_processor(text):
     return text.lower()
 
 def bm25_retriever(query: str, k: int, path) -> list[int]:
-    bm25_index = bm25_index_loader(f'{path}/bm25_index')
+    bm25_index = bm25_index_loader(f'{path}/{Settings.BM25_NAME}')
 
     processed_query = _txt_processor(query)
     tokenized_query = bm25s.tokenize([processed_query])
@@ -39,7 +41,7 @@ def faiss_retriever(query, k, path) -> list[int]:
     embedder= get_embedder()
     embedded_query = embedder.encode([query])
 
-    index = faiss_index_loader(f'{path}/faiss_index')
+    index = faiss_index_loader(f'{path}/{Settings.FAISS_NAME}')
     _scores, docs_i = index.search(embedded_query, k)
 
     return [int(x) for x in docs_i[0]]
@@ -48,7 +50,7 @@ def hybrid_search_retriever(
     query: str,
     k: int,
     path: str,
-    rrf_k: int = 60
+    rrf_k: int = Settings.RRF_K
 ) -> list[int]:
 
     top_k_bm25 = bm25_retriever(query, k, path)

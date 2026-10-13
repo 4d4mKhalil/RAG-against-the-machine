@@ -1,6 +1,8 @@
 import json
 import os
 from pathlib import Path
+
+from .settings import Settings
 from .aug_generator import augmenter
 from .models import (
     Chunk,
@@ -18,38 +20,41 @@ from .indexer import indexer
 from .retriever import chunks_loader, searcher
 
 class Pipeline:
-    def index(self, max_chunk_size: int = 2000) -> None:
-        processed = Path("./data/processed")
-        if not ((processed / "bm25_index").exists()
-            and (processed / "chunks.json").exists()
-            and (processed / "faiss_index").exists()
-        ):
-            indexer('./data/raw', './data/processed', max_chunk_size)
-        print(f"Ingestion complete! Indices saved under data/processed/")
+    def index(self, max_chunk_size: int = Settings.DEFAULT_CHUNK_SIZE) -> None:
+        processed = Settings.PROCESSED_DIR
+        try:
+            Settings.validate_chunk_size(max_chunk_size)
+        except ValueError as e:
+            print(e)
+        if not Settings.index_exists(processed):
+            indexer(Settings.RAW_DIR, processed, max_chunk_size)
+        print(f"Ingestion complete! Indices saved under {processed}")
 
-    def search(self, query: str, k: int = 10) -> None:
-        processed = Path("./data/processed")
-        if not ((processed / "bm25_index").exists()
-            and (processed / "chunks.json").exists()
-            and (processed / "faiss_index").exists()
-        ):
-            indexer('./data/raw', './data/processed', 2000)
-        chunks = searcher(query, k, './data/processed')
+    def search(self, query: str, k: int = Settings.DEFAULT_K) -> None:
+        processed = Settings.PROCESSED_DIR
+        try:
+            Settings.validate_k(k)
+        except ValueError as e:
+            print(e)
+        if not Settings.index_exists(processed):
+            indexer(Settings.RAW_DIR, processed, Settings.DEFAULT_CHUNK_SIZE)
+        chunks = searcher(query, k, processed)
         for chunk in chunks:
             print(f"{chunk.file_path} [{chunk.first_character_index}:{chunk.last_character_index}]")
 
     def search_dataset(
         self,
         dataset_path: str,
-        k: int = 5,
-        save_directory: str = "data/output/search_results"
+        k: int = Settings.DEFAULT_K,
+        save_directory: str = Settings.SEARCH_OUTPUT_DIR
     ) -> None:
-        processed = Path("./data/processed")
-        if not ((processed / "bm25_index").exists()
-            and (processed / "chunks.json").exists()
-            and (processed / "faiss_index").exists()
-        ):
-            indexer('./data/raw', './data/processed', 2000)
+        processed = Settings.PROCESSED_DIR
+        try:
+            Settings.validate_k(k)
+        except ValueError as e:
+            print(e)
+        if not Settings.index_exists(processed):
+            indexer(Settings.RAW_DIR, processed, Settings.DEFAULT_CHUNK_SIZE)
         with open(dataset_path) as file:
             dataset = json.load(file)
         rag_questions = RagDataset.model_validate(dataset)
@@ -60,7 +65,7 @@ class Pipeline:
                 MinimalSearchResults(
                     question_id=q.question_id,
                     question=q.question,
-                    retrieved_sources=searcher(q.question, k, './data/processed')
+                    retrieved_sources=searcher(q.question, k, processed)
                 )
             )
         studen_search_res = StudentSearchResults(search_results=search_res, k=k)
@@ -74,30 +79,27 @@ class Pipeline:
             f.write(studen_search_res.model_dump_json(indent=4))
         print(f'Saved student_search_results to {save_directory}/{output_filename}')
 
-    def answer(self, query: str, k: int = 5) -> None:
-        processed = Path("./data/processed")
-
-        if not ((processed / "bm25_index").exists()
-            and (processed / "chunks.json").exists()
-            and (processed / "faiss_index").exists()
-        ):
-            indexer('./data/raw', './data/processed', 2000)
-        top_k_chunks = searcher(query, k, './data/processed')
+    def answer(self, query: str, k: int = Settings.DEFAULT_K) -> None:
+        processed = Settings.PROCESSED_DIR
+        try:
+            Settings.validate_k(k)
+        except ValueError as e:
+            print(e)
+        if not Settings.index_exists(processed):
+            indexer(Settings.RAW_DIR, processed, Settings.DEFAULT_CHUNK_SIZE)
+        top_k_chunks = searcher(query, k, processed)
         answer = augmenter(query, top_k_chunks)
         print('\n', answer)
 
     def answer_dataset(
         self,
         student_search_results_path: str,
-        save_directory: str = "data/output/search_results_and_answer"
+        save_directory: str = Settings.ANSWER_OUTPUT_DIR
     ) -> None:
-        processed = Path("./data/processed")
+        processed = Settings.PROCESSED_DIR
 
-        if not ((processed / "bm25_index").exists()
-            and (processed / "chunks.json").exists()
-            and (processed / "faiss_index").exists()
-        ):
-            indexer('./data/raw', './data/processed', 2000)
+        if not Settings.index_exists(processed):
+            indexer(Settings.RAW_DIR, processed, Settings.DEFAULT_CHUNK_SIZE)
         with open(student_search_results_path) as file:
             ssr_data = json.load(file)
         ssr = StudentSearchResults.model_validate(ssr_data)

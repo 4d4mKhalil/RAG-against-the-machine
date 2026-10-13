@@ -1,9 +1,10 @@
+from .settings import Settings
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 class Small_LLM:
-    def __init__(self, model: str = "Qwen/Qwen3-0.6B"):
+    def __init__(self, model: str = Settings.LLM_MODEL):
         self.tokenizer = AutoTokenizer.from_pretrained(model)
 
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -12,7 +13,7 @@ class Small_LLM:
             device_map="auto"
         )
 
-    def generate(self, prompt: str, max_new_tokens: int = 256) -> str:
+    def generate(self, prompt: str, max_new_tokens: int = Settings.MAX_NEW_TOKENS) -> str:
         messages = [
             {
                 "role": "user",

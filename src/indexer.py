@@ -1,6 +1,8 @@
 from functools import lru_cache
 
 import bm25s, pathlib, re, faiss, json
+
+from .settings import Settings
 from .chunker import loader
 from .models import Chunk
 from sentence_transformers import SentenceTransformer
@@ -11,8 +13,8 @@ def _txt_processor(text):
     return text.lower()
 
 def _embedder(corpus: list[str]):
-    embedder = SentenceTransformer('all-MiniLM-L6-v2')
-    embeddings = embedder.encode(corpus, show_progress_bar=True, batch_size=600)
+    embedder = SentenceTransformer(Settings.EMBEDDING_MODEL)
+    embeddings = embedder.encode(corpus, show_progress_bar=True, batch_size=Settings.EMBEDDING_BATCH_SIZE)
     return embeddings
 
 @lru_cache
@@ -25,12 +27,12 @@ def indexer(repo: str, save_path: str, max_chunk_size: int):
     retriever = bm25s.BM25()
     retriever.index(corpus_tokens)
     pathlib.Path(save_path).mkdir(parents=True, exist_ok=True)
-    retriever.save(f'{save_path}/bm25_index')
+    retriever.save(f'{save_path}/{Settings.BM25_NAME}')
 
     embeddings = _embedder(faiss_corpus)
     index = faiss.IndexFlatIP(embeddings.shape[1])
     index.add(embeddings)
-    faiss.write_index(index, f'{save_path}/faiss_index')
+    faiss.write_index(index, f'{save_path}/{Settings.FAISS_NAME}')
 
-    with open(f"{save_path}/chunks.json", "w") as file:
+    with open(f"{save_path}/{Settings.CHUNKS_NAME}", "w") as file:
         json.dump([d.model_dump() for d in chunks], file, indent=2)
