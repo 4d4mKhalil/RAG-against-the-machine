@@ -1,10 +1,7 @@
 from .settings import Settings
 
 from .llm import Small_LLM
-from functools import lru_cache
 
-
-@lru_cache()
 def get_llm() -> Small_LLM:
     return Small_LLM(model=Settings.LLM_MODEL)
 

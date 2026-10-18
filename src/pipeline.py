@@ -21,6 +21,7 @@ from .retriever import chunks_loader, searcher
 class Pipeline:
     def index(self, max_chunk_size: int = Settings.DEFAULT_CHUNK_SIZE) -> None:
         Settings.validate_chunk_size(max_chunk_size)
+        Settings.empty_raw(Settings.RAW_DIR)
         processed = Settings.PROCESSED_DIR
         if not Settings.index_exists(processed):
             indexer(Settings.RAW_DIR, processed, max_chunk_size)
@@ -157,6 +158,11 @@ class Pipeline:
             scores = []
             for r in student:
                 gt = truth[r["question_id"]]
+                if not gt:
+                    continue
                 top = r["retrieved_sources"][:k]
                 scores.append(sum(any(hit(t, s) for t in top) for s in gt) / len(gt))
+            if not scores:
+                print("No questions to evaluate.")
+                return
             print(f"Recall@{k}: {sum(scores) / len(scores):.3f}")

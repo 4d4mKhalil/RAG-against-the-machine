@@ -1,7 +1,4 @@
-from functools import lru_cache
-
 import bm25s, pathlib, re, faiss, json
-
 from .settings import Settings
 from .chunker import loader
 from .models import Chunk
@@ -17,9 +14,10 @@ def _embedder(corpus: list[str]):
     embeddings = embedder.encode(corpus, show_progress_bar=True, batch_size=Settings.EMBEDDING_BATCH_SIZE)
     return embeddings
 
-@lru_cache
 def indexer(repo: str, save_path: str, max_chunk_size: int):
     chunks: list[Chunk] = loader(repo, max_chunk_size)
+    if not chunks:
+        raise ValueError("No indexable chunks found.")
     faiss_corpus = [chunk.text for chunk in chunks]
     bm25_corpus = [_txt_processor(chunk.text) for chunk in chunks]
 

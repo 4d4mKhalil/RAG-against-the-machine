@@ -1,8 +1,6 @@
 import bm25s, faiss, json, re
-
 from .settings import Settings
 from .models import Chunk, MinimalSource
-from rich import print
 from functools import lru_cache
 from sentence_transformers import SentenceTransformer
 
@@ -44,7 +42,7 @@ def faiss_retriever(query, k, path) -> list[int]:
     index = faiss_index_loader(f'{path}/{Settings.FAISS_NAME}')
     _scores, docs_i = index.search(embedded_query, k)
 
-    return [int(x) for x in docs_i[0]]
+    return [int(x) for x in docs_i[0] if x >= 0]
 
 def hybrid_search_retriever(
     query: str,

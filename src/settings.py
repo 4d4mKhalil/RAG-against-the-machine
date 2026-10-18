@@ -73,6 +73,12 @@ class Settings:
         return size
 
     @staticmethod
+    def empty_raw(raw: str):
+        raw_dir = Path(raw)
+        if not raw_dir.is_dir() or not any(raw_dir.iterdir()):
+            raise FileNotFoundError(f"'{raw_dir}' is empty or does not exist.")
+
+    @staticmethod
     def validate_k(k: int) -> int:
         """Return a valid k or raise ValueError."""
         if not isinstance(k, int) or k <= 0:
