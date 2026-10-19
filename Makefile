@@ -17,4 +17,4 @@ lint:
 	@uv run flake8 src
 	@uv run mypy src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
-.PHONY: run install debug clean lint lint-strict
+.PHONY: run install debug clean lint
