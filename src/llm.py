@@ -5,7 +5,14 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 class Small_LLM:
+    """Wrapper around a Hugging Face causal language model for generation."""
+
     def __init__(self, model: str = Settings.LLM_MODEL):
+        """Initialize the tokenizer and causal language model.
+
+        Args:
+            model (str): Hugging Face model identifier or checkpoint path.
+        """
         self.tokenizer = AutoTokenizer.from_pretrained(model)
 
         self.model: Any = AutoModelForCausalLM.from_pretrained(
@@ -19,6 +26,15 @@ class Small_LLM:
         prompt: str,
         max_new_tokens: int = Settings.MAX_NEW_TOKENS
     ) -> str:
+        """Generate a text completion for a prompt using chat formatting.
+
+        Args:
+            prompt (str): Prompt text to provide to the model.
+            max_new_tokens (int): Maximum number of new tokens to generate.
+
+        Returns:
+            str: Generated text response.
+        """
         messages = [
             {
                 "role": "user",

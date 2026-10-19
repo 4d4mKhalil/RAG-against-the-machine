@@ -6,6 +6,15 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 
 
 def _chunker(file_path: str, max_chunk_size: int) -> list[Chunk]:
+    """Split a single file into text chunks with character offsets.
+
+    Args:
+        file_path (str): Path to the target file to be chunked.
+        max_chunk_size (int): Maximum character size for each chunk.
+
+    Returns:
+        list[Chunk]: List of generated text chunks with boundary indices.
+    """
     extension = pathlib.Path(file_path).suffix
     language_map = {
         ".py": Language.PYTHON,
@@ -47,6 +56,15 @@ def _chunker(file_path: str, max_chunk_size: int) -> list[Chunk]:
 
 
 def loader(repo: str, max_chunk_size: int) -> list[Chunk]:
+    """Load and chunk all indexable files within a repository directory.
+
+    Args:
+        repo (str): Path to the root directory containing source files.
+        max_chunk_size (int): Maximum character size for each chunk.
+
+    Returns:
+        list[Chunk]: List of all chunks extracted across indexable files.
+    """
     chunks: list[Chunk] = []
     files = list(pathlib.Path(repo).rglob('*'))
 

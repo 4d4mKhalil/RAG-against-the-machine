@@ -6,6 +6,11 @@ from .pipeline import Pipeline
 
 
 def main() -> None:
+    """Parse command-line arguments and run the RAG CLI pipeline.
+
+    Returns:
+        None: Does not return a value.
+    """
     try:
         fire.Fire(Pipeline, name="RAG")
     except (ValueError, FileNotFoundError, json.JSONDecodeError) as e:

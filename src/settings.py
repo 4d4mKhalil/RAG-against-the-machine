@@ -4,7 +4,11 @@ from pathlib import Path
 
 
 class Settings:
-    """Defaults and small helpers. Never instantiated; use the class."""
+    """Defaults and configuration settings for the RAG pipeline.
+
+    This class is not intended to be instantiated; all members are class-level
+    constants or static helper methods.
+    """
     RAW_DIR: str = "data/raw"
     PROCESSED_DIR: str = "data/processed"
     SEARCH_OUTPUT_DIR: str = "data/output/search_results"
@@ -33,7 +37,14 @@ class Settings:
 
     @staticmethod
     def index_files(directory: str | Path) -> list[Path]:
-        """Return the paths that make up a complete index."""
+        """Return the file paths that make up a complete index.
+
+        Args:
+            directory (str | Path): Base directory where index files reside.
+
+        Returns:
+            list[Path]: List of expected index file paths.
+        """
         base = Path(directory)
         return [
             base / Settings.BM25_NAME,
@@ -43,27 +54,66 @@ class Settings:
 
     @staticmethod
     def missing_index_files(directory: str | Path) -> list[Path]:
-        """Return the index parts that do not exist yet."""
+        """Return the index file paths that do not exist yet.
+
+        Args:
+            directory (str | Path): Base directory to inspect for index files.
+
+        Returns:
+            list[Path]: List of non-existent index file paths.
+        """
         return [p for p in Settings.index_files(directory) if not p.exists()]
 
     @staticmethod
     def index_exists(directory: str | Path) -> bool:
-        """Return True when the whole index is present."""
+        """Check whether all index files exist in the specified directory.
+
+        Args:
+            directory (str | Path): Base directory to check.
+
+        Returns:
+            bool: True if all index files exist, False otherwise.
+        """
         return not Settings.missing_index_files(directory)
 
     @staticmethod
     def is_indexable(path: Path) -> bool:
-        """Return True if the file extension is supported."""
+        """Determine whether a file has a supported indexable extension.
+
+        Args:
+            path (Path): File path to verify.
+
+        Returns:
+            bool: True if file extension is in EXTENSIONS, False otherwise.
+        """
         return path.suffix.lower() in Settings.EXTENSIONS
 
     @staticmethod
     def is_ignored(path: Path) -> bool:
-        """Return True if any part of the path is an ignored dir."""
+        """Determine whether any directory in the path is ignored.
+
+        Args:
+            path (Path): Path to evaluate.
+
+        Returns:
+            bool: True if any component is in IGNORED_DIRS, False otherwise.
+        """
         return any(part in Settings.IGNORED_DIRS for part in path.parts)
 
     @staticmethod
     def validate_chunk_size(size: int) -> int:
-        """Return a valid chunk size or raise ValueError."""
+        """Validate that chunk size is a positive integer within bounds.
+
+        Args:
+            size (int): Chunk size in characters to validate.
+
+        Returns:
+            int: The validated chunk size.
+
+        Raises:
+            ValueError: If size is not an integer, is non-positive, or exceeds
+                MAX_CHUNK_SIZE.
+        """
         if not isinstance(size, int) or size <= 0:
             raise ValueError("max_chunk_size must be a positive integer")
         if size > Settings.MAX_CHUNK_SIZE:
@@ -74,6 +124,17 @@ class Settings:
 
     @staticmethod
     def ensure_raw_not_empty(raw: str) -> None:
+        """Validate that the raw directory exists.
+
+        Args:
+            raw (str): Path to the raw data directory.
+
+        Returns:
+            None: Does not return a value.
+
+        Raises:
+            FileNotFoundError: If the raw directory does not exist.
+        """
         raw_dir = Path(raw)
 
         if not raw_dir.is_dir():
@@ -81,14 +142,19 @@ class Settings:
                 f"Raw directory '{raw_dir}' does not exist."
             )
 
-        if not any(path.is_file() for path in raw_dir.iterdir()):
-            raise FileNotFoundError(
-                f"Raw directory '{raw_dir}' contains no files."
-            )
-
     @staticmethod
     def validate_k(k: int) -> int:
-        """Return a valid k or raise ValueError."""
+        """Validate that retrieval count k is a positive integer.
+
+        Args:
+            k (int): Number of top results to retrieve.
+
+        Returns:
+            int: The validated k value.
+
+        Raises:
+            ValueError: If k is not an integer or is non-positive.
+        """
         if not isinstance(k, int) or k <= 0:
             raise ValueError("k must be a positive integer")
         return k

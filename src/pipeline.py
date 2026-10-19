@@ -19,8 +19,17 @@ from .retriever import searcher
 
 
 class Pipeline:
+    """Command-line interface and orchestration pipeline for RAG operations."""
 
     def _ensure_index(self) -> Path:
+        """Verify index existence or trigger indexing if missing.
+
+        Returns:
+            Path: Directory path containing the verified index files.
+
+        Raises:
+            RuntimeError: If indexing does not produce a usable index.
+        """
         processed = Path(Settings.PROCESSED_DIR)
 
         if not Settings.index_exists(processed):
@@ -44,6 +53,14 @@ class Pipeline:
         return processed
 
     def index(self, max_chunk_size: int = Settings.DEFAULT_CHUNK_SIZE) -> None:
+        """Build BM25 and FAISS search indices from raw documents.
+
+        Args:
+            max_chunk_size (int): Maximum character size for each chunk.
+
+        Returns:
+            None: Does not return a value.
+        """
         Settings.validate_chunk_size(max_chunk_size)
         Settings.ensure_raw_not_empty(Settings.RAW_DIR)
         processed = Settings.PROCESSED_DIR
@@ -54,6 +71,15 @@ class Pipeline:
         )
 
     def search(self, query: str, k: int = Settings.DEFAULT_K) -> None:
+        """Search the index for relevant chunks and print their locations.
+
+        Args:
+            query (str): Search query text.
+            k (int): Number of top results to retrieve.
+
+        Returns:
+            None: Does not return a value.
+        """
         Settings.validate_k(k)
 
         if not query.strip():
@@ -65,9 +91,11 @@ class Pipeline:
             print("[yellow]No relevant sources found.[/]")
             return
         for chunk in chunks:
-            print(f"[italic #a7de50]{chunk.file_path} \
-[[#5d95e3 bold]{chunk.first_character_index}:\
-{chunk.last_character_index}[/]]")
+            print(
+                f"[italic #a7de50]{chunk.file_path} "
+                f"[[#5d95e3 bold]{chunk.first_character_index}:"
+                f"{chunk.last_character_index}[/]]"
+            )
 
     def search_dataset(
         self,
@@ -75,6 +103,16 @@ class Pipeline:
         k: int = Settings.DEFAULT_K,
         save_directory: str = Settings.SEARCH_OUTPUT_DIR
     ) -> None:
+        """Search across all dataset questions and save results to a JSON file.
+
+        Args:
+            dataset_path (str): Path to the input dataset JSON file.
+            k (int): Number of top results to retrieve per question.
+            save_directory (str): Destination directory for the output file.
+
+        Returns:
+            None: Does not return a value.
+        """
         Settings.validate_k(k)
         processed = self._ensure_index()
         with open(dataset_path) as file:
@@ -108,6 +146,15 @@ class Pipeline:
         )
 
     def answer(self, query: str, k: int = Settings.DEFAULT_K) -> None:
+        """Retrieve relevant chunks and print an LLM-generated answer.
+
+        Args:
+            query (str): Question to answer.
+            k (int): Number of top context chunks to retrieve.
+
+        Returns:
+            None: Does not return a value.
+        """
         Settings.validate_k(k)
         if not query.strip():
             print("[yellow]Query cannot be empty.[/]")
@@ -122,6 +169,17 @@ class Pipeline:
         student_search_results_path: str,
         save_directory: str = Settings.ANSWER_OUTPUT_DIR
     ) -> None:
+        """Generate answers for retrieved search results and save to JSON.
+
+        Args:
+            student_search_results_path (str): Path to search results JSON
+                file.
+            save_directory (str): Destination directory where answers are
+                saved.
+
+        Returns:
+            None: Does not return a value.
+        """
         with open(student_search_results_path) as file:
             ssr_data = json.load(file)
         ssr = StudentSearchResults.model_validate(ssr_data)
@@ -189,6 +247,16 @@ class Pipeline:
         student_search_results_path: str,
         dataset_path: str
     ) -> None:
+        """Evaluate retrieval quality against ground truth using Recall@k.
+
+        Args:
+            student_search_results_path (str): Path to search results JSON
+                file.
+            dataset_path (str): Path to ground-truth dataset JSON file.
+
+        Returns:
+            None: Does not return a value.
+        """
         with open(student_search_results_path) as f:
             student = json.load(f)["search_results"]
         with open(dataset_path) as f:
@@ -198,6 +266,15 @@ class Pipeline:
                 }
 
         def hit(a: dict[str, Any], b: dict[str, Any]) -> bool:
+            """Evaluate whether candidate chunk overlaps ground truth by >= 5%.
+
+            Args:
+                a (dict[str, Any]): Candidate retrieved chunk dictionary.
+                b (dict[str, Any]): Ground-truth source chunk dictionary.
+
+            Returns:
+                bool: True if chunks match and overlap >= 5%, False otherwise.
+            """
             if a["file_path"] != b["file_path"]:
                 return False
             inter = min(a["last_character_index"], b["last_character_index"]) \
