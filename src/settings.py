@@ -32,7 +32,7 @@ class Settings:
     MAX_NEW_TOKENS: int = 256
 
     @staticmethod
-    def index_files(directory: str) -> list[Path]:
+    def index_files(directory: str | Path) -> list[Path]:
         """Return the paths that make up a complete index."""
         base = Path(directory)
         return [
@@ -42,12 +42,12 @@ class Settings:
         ]
 
     @staticmethod
-    def missing_index_files(directory: str) -> list[Path]:
+    def missing_index_files(directory: str | Path) -> list[Path]:
         """Return the index parts that do not exist yet."""
         return [p for p in Settings.index_files(directory) if not p.exists()]
 
     @staticmethod
-    def index_exists(directory: str) -> bool:
+    def index_exists(directory: str | Path) -> bool:
         """Return True when the whole index is present."""
         return not Settings.missing_index_files(directory)
 
@@ -73,10 +73,18 @@ class Settings:
         return size
 
     @staticmethod
-    def empty_raw(raw: str):
+    def ensure_raw_not_empty(raw: str) -> None:
         raw_dir = Path(raw)
-        if not raw_dir.is_dir() or not any(raw_dir.iterdir()):
-            raise FileNotFoundError(f"'{raw_dir}' is empty or does not exist.")
+
+        if not raw_dir.is_dir():
+            raise FileNotFoundError(
+                f"Raw directory '{raw_dir}' does not exist."
+            )
+
+        if not any(path.is_file() for path in raw_dir.iterdir()):
+            raise FileNotFoundError(
+                f"Raw directory '{raw_dir}' contains no files."
+            )
 
     @staticmethod
     def validate_k(k: int) -> int:

@@ -4,7 +4,8 @@ from .settings import Settings
 from .models import Chunk
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 
-def _chunker(file_path:str, max_chunk_size: int) -> list[Chunk]:
+
+def _chunker(file_path: str, max_chunk_size: int) -> list[Chunk]:
     extension = pathlib.Path(file_path).suffix
     language_map = {
         ".py": Language.PYTHON,
@@ -16,17 +17,21 @@ def _chunker(file_path:str, max_chunk_size: int) -> list[Chunk]:
             language=language_map[extension],
             chunk_size=max_chunk_size,
             chunk_overlap=0,
-            add_start_index = True
+            add_start_index=True
             )
     else:
-        splitter = RecursiveCharacterTextSplitter(chunk_size=max_chunk_size, chunk_overlap=0, add_start_index = True)
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=max_chunk_size,
+            chunk_overlap=0,
+            add_start_index=True
+        )
 
     try:
         with open(file_path) as file:
             source = file.read()
     except IOError:
         return []
-    
+
     chunks = splitter.create_documents([source])
     res: list[Chunk] = []
     for chunk in chunks:
@@ -39,6 +44,7 @@ def _chunker(file_path:str, max_chunk_size: int) -> list[Chunk]:
             text=chunk.page_content
             ))
     return res
+
 
 def loader(repo: str, max_chunk_size: int) -> list[Chunk]:
     chunks: list[Chunk] = []

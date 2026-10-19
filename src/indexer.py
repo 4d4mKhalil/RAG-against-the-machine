@@ -1,20 +1,36 @@
-import bm25s, pathlib, re, faiss, json
+import bm25s
+import pathlib
+import re
+import faiss
+import json
+from typing import Any
+from sentence_transformers import SentenceTransformer
 from .settings import Settings
 from .chunker import loader
 from .models import Chunk
-from sentence_transformers import SentenceTransformer
 
-def _txt_processor(text):
+
+def _txt_processor(text: str) -> str:
     text = text.replace('_', ' ')
     text = re.sub(r'([a-z0-9])([A-Z])', r'\1 \2', text)
     return text.lower()
 
-def _embedder(corpus: list[str]):
+
+def _embedder(corpus: list[str]) -> Any:
     embedder = SentenceTransformer(Settings.EMBEDDING_MODEL)
-    embeddings = embedder.encode(corpus, show_progress_bar=True, batch_size=Settings.EMBEDDING_BATCH_SIZE)
+    embeddings = embedder.encode(
+        corpus,
+        show_progress_bar=True,
+        batch_size=Settings.EMBEDDING_BATCH_SIZE
+    )
     return embeddings
 
-def indexer(repo: str, save_path: str, max_chunk_size: int):
+
+def indexer(
+    repo: str,
+    save_path: str | pathlib.Path,
+    max_chunk_size: int
+) -> None:
     chunks: list[Chunk] = loader(repo, max_chunk_size)
     if not chunks:
         raise ValueError("No indexable chunks found.")

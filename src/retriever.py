@@ -1,32 +1,43 @@
-import bm25s, faiss, json, re
-from .settings import Settings
-from .models import Chunk, MinimalSource
+import bm25s
+import faiss
+import json
+import re
 from functools import lru_cache
+from pathlib import Path
+from typing import Any
 from sentence_transformers import SentenceTransformer
+from .models import Chunk
+from .settings import Settings
+
 
 @lru_cache
-def bm25_index_loader(index_path: str):
+def bm25_index_loader(index_path: str) -> Any:
     return bm25s.BM25.load(index_path)
 
-@lru_cache
-def faiss_index_loader(index_path: str):
-    return faiss.read_index(index_path)
 
 @lru_cache
-def chunks_loader(chunks_dir: str):
+def faiss_index_loader(index_path: str) -> Any:
+    return faiss.read_index(index_path)
+
+
+@lru_cache
+def chunks_loader(chunks_dir: str | Path) -> Any:
     with open(f'{chunks_dir}/{Settings.CHUNKS_NAME}') as file:
         return json.load(file)
 
+
 @lru_cache
-def get_embedder():
+def get_embedder() -> SentenceTransformer:
     return SentenceTransformer(Settings.EMBEDDING_MODEL)
 
-def _txt_processor(text):
+
+def _txt_processor(text: str) -> str:
     text = text.replace('_', ' ')
     text = re.sub(r'([a-z0-9])([A-Z])', r'\1 \2', text)
     return text.lower()
 
-def bm25_retriever(query: str, k: int, path) -> list[int]:
+
+def bm25_retriever(query: str, k: int, path: str | Path) -> list[int]:
     bm25_index = bm25_index_loader(f'{path}/{Settings.BM25_NAME}')
 
     processed_query = _txt_processor(query)
@@ -35,8 +46,9 @@ def bm25_retriever(query: str, k: int, path) -> list[int]:
 
     return [int(x) for x in docs_i[0]]
 
-def faiss_retriever(query, k, path) -> list[int]:
-    embedder= get_embedder()
+
+def faiss_retriever(query: str, k: int, path: str | Path) -> list[int]:
+    embedder = get_embedder()
     embedded_query = embedder.encode([query])
 
     index = faiss_index_loader(f'{path}/{Settings.FAISS_NAME}')
@@ -44,33 +56,37 @@ def faiss_retriever(query, k, path) -> list[int]:
 
     return [int(x) for x in docs_i[0] if x >= 0]
 
+
 def hybrid_search_retriever(
     query: str,
     k: int,
-    path: str,
+    path: str | Path,
     rrf_k: int = Settings.RRF_K
 ) -> list[int]:
 
     top_k_bm25 = bm25_retriever(query, k, path)
     top_k_faiss = faiss_retriever(query, k, path)
 
-
     rrf_scores: dict[int, float] = {}
     for rank, chunk_index in enumerate(top_k_bm25, start=1):
-        rrf_scores[chunk_index] = rrf_scores.get(chunk_index, 0) + 1 / (rrf_k + rank)
+        rrf_scores[chunk_index] = (
+            rrf_scores.get(chunk_index, 0) + 1 / (rrf_k + rank)
+        )
     for rank, chunk_index in enumerate(top_k_faiss, start=1):
-        rrf_scores[chunk_index] = rrf_scores.get(chunk_index, 0) + 1 / (rrf_k + rank)
+        rrf_scores[chunk_index] = (
+            rrf_scores.get(chunk_index, 0) + 1 / (rrf_k + rank)
+        )
 
     ranked_keys = sorted(
         rrf_scores,
-        key=rrf_scores.get,
+        key=lambda k: rrf_scores[k],
         reverse=True
     )
 
     return ranked_keys[:k]
 
 
-def searcher(query, k, path):
+def searcher(query: str, k: int, path: str | Path) -> list[Chunk]:
     indexes = hybrid_search_retriever(query, k, path)
     chunks = chunks_loader(path)
     res: list[Chunk] = []

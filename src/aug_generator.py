@@ -1,12 +1,18 @@
 from .settings import Settings
-
+from .models import Chunk
 from .llm import Small_LLM
+
 
 def get_llm() -> Small_LLM:
     return Small_LLM(model=Settings.LLM_MODEL)
 
 
-def augmenter(query: str, context: list[str], token_limit: int = Settings.MAX_NEW_TOKENS, max_chunks: int = 3) -> str:
+def augmenter(
+    query: str,
+    context: list[Chunk],
+    token_limit: int = Settings.MAX_NEW_TOKENS,
+    max_chunks: int = 3
+) -> str:
     llm = get_llm()
     ctx = "\n\n".join(
         f"[{c.file_path}]\n{c.text}" for c in context[:max_chunks]

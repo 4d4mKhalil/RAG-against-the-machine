@@ -1,3 +1,4 @@
+from typing import Any
 from .settings import Settings
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -7,13 +8,17 @@ class Small_LLM:
     def __init__(self, model: str = Settings.LLM_MODEL):
         self.tokenizer = AutoTokenizer.from_pretrained(model)
 
-        self.model = AutoModelForCausalLM.from_pretrained(
+        self.model: Any = AutoModelForCausalLM.from_pretrained(
             model,
             dtype=torch.float32 if not torch.cuda.is_available() else "auto",
             device_map="auto"
         )
 
-    def generate(self, prompt: str, max_new_tokens: int = Settings.MAX_NEW_TOKENS) -> str:
+    def generate(
+        self,
+        prompt: str,
+        max_new_tokens: int = Settings.MAX_NEW_TOKENS
+    ) -> str:
         messages = [
             {
                 "role": "user",
@@ -45,5 +50,4 @@ class Small_LLM:
             skip_special_tokens=True
         )
 
-        return response
-
+        return str(response)
